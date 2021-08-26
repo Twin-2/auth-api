@@ -1,0 +1,23 @@
+{
+    "development": {
+        "username": "dwhitmore",
+        "password": "rootroot",
+        "database": "lab8-dev-a",
+        "host": "127.0.0.1",
+        "dialect": "postgres"
+    },
+    "test": {
+        "username": "dwhitmore",
+        "password": "rootroot",
+        "database": "data_test",
+        "host": "127.0.0.1",
+        "dialect": "sqlite3"
+    },
+    "production": {
+        "username": "dwhitmore",
+        "password": "rootroot",
+        "database": "lab8-prod",
+        "host": "127.0.0.1",
+        "dialect": "postgres"
+    }
+}
