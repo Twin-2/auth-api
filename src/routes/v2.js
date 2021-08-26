@@ -18,9 +18,9 @@ router.param('model', (req, res, next) => {
     }
 });
 
+router.post('/:model', bearerAuth, permissions('create'), handleCreate);
 router.get('/:model', bearerAuth, permissions('read'), handleGetAll);
 router.get('/:model/:id', bearerAuth, permissions('read'), handleGetOne);
-router.post('/:model', bearerAuth, permissions('create'), handleCreate);
 router.put('/:model/:id', bearerAuth, permissions('update'), handleUpdate);
 router.delete('/:model/:id', bearerAuth, permissions('delete'), handleDelete);
 
