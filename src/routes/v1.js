@@ -1,11 +1,12 @@
 'use strict';
 
 const express = require('express');
-const dataModules = require('../models/index.js.js.js.js');
+const dataModules = require('../models/index.js');
 
 const router = express.Router();
 
 router.param('model', (req, res, next) => {
+  console.log(req.params.model)
   const modelName = req.params.model;
   if (dataModules[modelName]) {
     req.model = dataModules[modelName];
@@ -34,6 +35,7 @@ async function handleGetOne(req, res) {
 
 async function handleCreate(req, res) {
   let obj = req.body;
+  console.log(obj)
   let newRecord = await req.model.create(obj);
   res.status(201).json(newRecord);
 }
