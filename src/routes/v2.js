@@ -8,10 +8,10 @@ const permissions = require('../middleware/acl.js')
 const router = express.Router();
 
 router.param('model', (req, res, next) => {
-    console.log(req.params.model)
     const modelName = req.params.model;
     if (dataModules[modelName]) {
         req.model = dataModules[modelName];
+        console.log(req.model)
         next();
     } else {
         next('Invalid Model');

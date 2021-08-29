@@ -13,7 +13,11 @@ let users = {
     user: { username: 'user', password: 'password', role: 'user' },
 };
 
-// let endPoints = [food, clothes]
+let endPoints = [food, clothes]
+let mockData = {
+    food: { name: "banana", calories: 100, type: "fruit" },
+    clothes: { name: "shirt", color: 'blue', size: "small" }
+}
 
 beforeAll(async (done) => {
     await db.sync();
@@ -24,7 +28,7 @@ afterAll(async (done) => {
     done();
 });
 
-describe('Auth Router', () => {
+xdescribe('Auth Router', () => {
 
     Object.keys(users).forEach(userType => {
 
@@ -116,44 +120,126 @@ describe('Auth Router', () => {
 
 });
 
-xdescribe('RESOURCE ROUTES', () => {
+describe('RESOURCE ROUTES', () => {
 
 
-    Object.keys(users).forEach(userType => {
+    describe(`Admin users`, () => {
 
-        describe(`${userType} users`, () => {
 
-            beforeEach(async () => {
-                await db.sync();
-                const response = await mockRequest.post('/signup').send(users[userType]);
+
+        Object.keys(mockData).forEach(value => {
+
+            describe(`at /${value} endpoint`, () => {
+
+                beforeAll(async () => {
+                    await db.sync();
+
+                })
+
+                afterAll(async () => {
+                    await db.drop();
+                })
+
+                it(`can go to a POST /${value} and will get back a status of 201 and the object they created`, async () => {
+                    const response = await mockRequest.post(`/signup`).send(users.admin);
+                    const token = response.body.token
+                    const createdResources = await mockRequest.post(`/${value}`).send(mockData[value]).set('Authorization', `Bearer ${token}`)
+                    expect(createdResources.status).toBe(201)
+
+                })
+
+                it.only(`should be able to GET /${value}`, async () => {
+                    const response = await mockRequest.post(`/signin`).auth(users.admin.username, users.admin.password);
+                    const token = response.body.token
+                    console.log('@@@@@@@@@@@@@@@@@@@', response.body)
+                    const readResource = await mockRequest.get(`/${value}`).set('Authorization', `Bearer ${token}`)
+                    expect(readResource.status).toBe(200)
+                    expect(typeof readResource.body).toBe('object')
+                })
+
+                it(`should be able to GET /${value}`, () => {
+
+                })
+
+                it(`should be able to PUT /${value}`, () => {
+
+                })
+
+                it(`should be able to DELETE /${value}`, () => {
+
+                })
+            })
+        })
+    })
+
+    xdescribe(`${users.editor} users`, () => {
+
+        beforeEach(async () => {
+            await db.sync();
+            const response = await mockRequest.post('/signup').send(users[userType]);
+        })
+
+        afterEach(async () => {
+            await db.drop();
+        })
+
+        endPoint.forEach(value => {
+
+            it(`should respond to a POST /${value}`, async () => {
+                // const response = await mockRequest.post('/signup').send(users.admin);
+
             })
 
-            afterEach(async () => {
-                await db.drop();
+            it(`should be able to GET /${value}`, () => {
+
             })
 
-            endPoint.forEach(value => {
+            it(`should be able to GET /${value}`, () => {
 
-                describe(`${value}`)
-                it('should respond to a POST ', () => {
+            })
 
-                })
+            it(`should be able to PUT /${value}`, () => {
 
-                it('should be able to ', () => {
+            })
 
-                })
+            it(`should be able to DELETE /${value}`, () => {
 
-                it('should be able to ', () => {
+            })
+        })
+    })
 
-                })
+    xdescribe(`${users.user} users`, () => {
 
-                it('should be able to ', () => {
+        beforeEach(async () => {
+            await db.sync();
+        })
 
-                })
+        afterEach(async () => {
+            await db.drop();
+        })
 
-                it('should be able to ', () => {
+        endPoint.forEach(value => {
 
-                })
+            describe(`${value}`)
+            it(`should respond to a POST /${value}`, async () => {
+                // const response = await mockRequest.post('/signup').send(users.admin);
+
+            })
+
+            it(`should be able to GET /${value}`, () => {
+
+            })
+
+            it(`should be able to GET /${value}`, () => {
+
+            })
+
+            it(`should be able to PUT /${value}`, () => {
+
+            })
+
+            it(`should be able to DELETE /${value}`, () => {
+
             })
         })
     })
