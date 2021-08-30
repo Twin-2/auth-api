@@ -13,18 +13,22 @@ let users = {
     user: { username: 'user', password: 'password', role: 'user' },
 };
 
-// let endPoints = [food, clothes]
-
-beforeAll(async (done) => {
-    await db.sync();
-    done();
-});
-afterAll(async (done) => {
-    await db.drop();
-    done();
-});
+let endPoints = [food, clothes]
+let mockData = {
+    food: { name: "banana", calories: 100, type: "fruit" },
+    clothes: { name: "shirt", color: 'blue', size: "small" }
+}
 
 describe('Auth Router', () => {
+
+    beforeAll(async (done) => {
+        await db.sync();
+        done();
+    });
+    afterAll(async (done) => {
+        await db.drop();
+        done();
+    });
 
     Object.keys(users).forEach(userType => {
 
@@ -99,7 +103,7 @@ describe('Auth Router', () => {
 
             });
 
-            xit('bearer fails with an invalid token', async () => {
+            it('bearer fails with an invalid token', async () => {
 
                 // First, use basic to login to get a token
                 const bearerResponse = await mockRequest
@@ -116,43 +120,193 @@ describe('Auth Router', () => {
 
 });
 
-xdescribe('RESOURCE ROUTES', () => {
+describe('RESOURCE ROUTES', () => {
 
 
-    Object.keys(users).forEach(userType => {
+    describe(`Admin users`, () => {
 
-        describe(`${userType} users`, () => {
+        Object.keys(mockData).forEach(value => {
 
-            beforeEach(async () => {
+            beforeEach(async (done) => {
                 await db.sync();
-                const response = await mockRequest.post('/signup').send(users[userType]);
-            })
-
-            afterEach(async () => {
+                const response = await mockRequest.post(`/signup`).send(users.admin);
+                done();
+            });
+            afterEach(async (done) => {
                 await db.drop();
+                done();
+            });
+
+            describe(`at /${value} endpoint`, () => {
+
+                it(`can go to a POST /${value} and will get back a status of 201 and the object they created`, async () => {
+                    const response = await mockRequest.post(`/signin`).auth(users.admin.username, users.admin.password);
+                    const token = response.body.token
+                    const createdResources = await mockRequest.post(`/${value}`).send(mockData[value]).set('Authorization', `Bearer ${token}`)
+                    expect(createdResources.status).toBe(201)
+
+                })
+
+                it(`can go to GET /${value} and will get backa status of 200 and an object`, async () => {
+                    const response = await mockRequest.post(`/signin`).auth(users.admin.username, users.admin.password);
+                    const token = response.body.token
+                    const createdResources = await mockRequest.post(`/${value}`).send(mockData[value]).set('Authorization', `Bearer ${token}`)
+                    const readResource = await mockRequest.get(`/${value}`).set('Authorization', `Bearer ${token}`)
+                    expect(readResource.status).toBe(200)
+                    expect(typeof readResource.body).toBe('object')
+                })
+
+                it(`can go to GET /${value}/1 and will get back a status of 200 and an object`, async () => {
+                    const response = await mockRequest.post(`/signin`).auth(users.admin.username, users.admin.password);
+                    const token = response.body.token
+                    const createdResources = await mockRequest.post(`/${value}`).send(mockData[value]).set('Authorization', `Bearer ${token}`)
+                    const readResource = await mockRequest.get(`/${value}/1`).set('Authorization', `Bearer ${token}`)
+                    expect(readResource.status).toBe(200)
+                    expect(typeof readResource.body).toBe('object')
+                })
+
+                it(`can go to PUT /${value}/1 and will get back a status of 200 and an object`, async () => {
+                    const response = await mockRequest.post(`/signin`).auth(users.admin.username, users.admin.password);
+                    const token = response.body.token
+                    const createdResources = await mockRequest.post(`/${value}`).send(mockData[value]).set('Authorization', `Bearer ${token}`)
+                    const readResource = await mockRequest.put(`/${value}/1`).set('Authorization', `Bearer ${token}`).send({ name: "new" })
+                    expect(readResource.status).toBe(200)
+                    expect(typeof readResource.body).toBe('object')
+                })
+
+                it(`can go to DELETE /${value}/1 and will get back a status of 202 and an object`, async () => {
+                    const response = await mockRequest.post(`/signin`).auth(users.admin.username, users.admin.password);
+                    const token = response.body.token
+                    const createdResources = await mockRequest.post(`/${value}`).send(mockData[value]).set('Authorization', `Bearer ${token}`)
+                    const readResource = await mockRequest.delete(`/${value}/1`).set('Authorization', `Bearer ${token}`)
+                    expect(readResource.status).toBe(202)
+                })
             })
+        })
+    })
 
-            endPoint.forEach(value => {
+    describe(`Editor users`, () => {
 
-                describe(`${value}`)
-                it('should respond to a POST ', () => {
+        Object.keys(mockData).forEach(value => {
+
+            beforeEach(async (done) => {
+                await db.sync();
+                const response = await mockRequest.post(`/signup`).send(users.editor);
+                done();
+            });
+            afterEach(async (done) => {
+                await db.drop();
+                done();
+            });
+
+            describe(`at /${value} endpoint`, () => {
+
+                it(`can go to a POST /${value} and will get back a status of 201 and the object they created`, async () => {
+                    const response = await mockRequest.post(`/signin`).auth(users.editor.username, users.editor.password);
+                    const token = response.body.token
+                    const createdResources = await mockRequest.post(`/${value}`).send(mockData[value]).set('Authorization', `Bearer ${token}`)
+                    expect(createdResources.status).toBe(201)
 
                 })
 
-                it('should be able to ', () => {
+                it(`can go to GET /${value} and will get backa status of 200 and an object`, async () => {
+                    const response = await mockRequest.post(`/signin`).auth(users.editor.username, users.editor.password);
+                    const token = response.body.token
+                    const createdResources = await mockRequest.post(`/${value}`).send(mockData[value]).set('Authorization', `Bearer ${token}`)
+                    const readResource = await mockRequest.get(`/${value}`).set('Authorization', `Bearer ${token}`)
+                    expect(readResource.status).toBe(200)
+                    expect(typeof readResource.body).toBe('object')
+                })
+
+                it(`can go to GET /${value}/1 and will get back a status of 200 and an object`, async () => {
+                    const response = await mockRequest.post(`/signin`).auth(users.editor.username, users.editor.password);
+                    const token = response.body.token
+                    const createdResources = await mockRequest.post(`/${value}`).send(mockData[value]).set('Authorization', `Bearer ${token}`)
+                    const readResource = await mockRequest.get(`/${value}/1`).set('Authorization', `Bearer ${token}`)
+                    expect(readResource.status).toBe(200)
+                    expect(typeof readResource.body).toBe('object')
+                })
+
+                it(`can go to PUT /${value}/1 and will get back a status of 200 and an object`, async () => {
+                    const response = await mockRequest.post(`/signin`).auth(users.editor.username, users.editor.password);
+                    const token = response.body.token
+                    const createdResources = await mockRequest.post(`/${value}`).send(mockData[value]).set('Authorization', `Bearer ${token}`)
+                    const readResource = await mockRequest.put(`/${value}/1`).set('Authorization', `Bearer ${token}`).send({ name: "new" })
+                    expect(readResource.status).toBe(200)
+                    expect(typeof readResource.body).toBe('object')
+                })
+
+                it(`cannot go to DELETE /${value}/1 so will get back a status of 500 and an error messege`, async () => {
+                    const response = await mockRequest.post(`/signin`).auth(users.editor.username, users.editor.password);
+                    const token = response.body.token
+                    const createdResources = await mockRequest.post(`/${value}`).send(mockData[value]).set('Authorization', `Bearer ${token}`)
+                    const readResource = await mockRequest.delete(`/${value}/1`).set('Authorization', `Bearer ${token}`)
+                    expect(readResource.status).toBe(500)
+                    expect(readResource.body.message).toBe('Access Denied')
+                })
+            })
+        })
+    })
+
+    describe(`User users`, () => {
+
+        Object.keys(mockData).forEach(value => {
+
+            beforeEach(async (done) => {
+                await db.sync();
+                const response = await mockRequest.post(`/signup`).send(users.user);
+                done();
+            });
+            afterEach(async (done) => {
+                await db.drop();
+                done();
+            });
+
+            describe(`at /${value} endpoint`, () => {
+
+                it(`cannot go to a POST /${value} so will get back a status of 500 and an error message`, async () => {
+                    const response = await mockRequest.post(`/signin`).auth(users.user.username, users.user.password);
+                    const token = response.body.token
+                    const createdResources = await mockRequest.post(`/${value}`).send(mockData[value]).set('Authorization', `Bearer ${token}`)
+                    expect(createdResources.status).toBe(500)
+                    expect(createdResources.body.message).toBe('Access Denied')
 
                 })
 
-                it('should be able to ', () => {
-
+                it(`can go to GET /${value} and will get backa status of 200 and an object`, async () => {
+                    const response = await mockRequest.post(`/signin`).auth(users.user.username, users.user.password);
+                    const token = response.body.token
+                    const createdResources = await mockRequest.post(`/${value}`).send(mockData[value]).set('Authorization', `Bearer ${token}`)
+                    const readResource = await mockRequest.get(`/${value}`).set('Authorization', `Bearer ${token}`)
+                    expect(readResource.status).toBe(200)
+                    expect(typeof readResource.body).toBe('object')
                 })
 
-                it('should be able to ', () => {
-
+                it(`can go to GET /${value}/1 and will get back a status of 200 and an object`, async () => {
+                    const response = await mockRequest.post(`/signin`).auth(users.user.username, users.user.password);
+                    const token = response.body.token
+                    const createdResources = await mockRequest.post(`/${value}`).send(mockData[value]).set('Authorization', `Bearer ${token}`)
+                    const readResource = await mockRequest.get(`/${value}/1`).set('Authorization', `Bearer ${token}`)
+                    expect(readResource.status).toBe(200)
+                    expect(typeof readResource.body).toBe('object')
                 })
 
-                it('should be able to ', () => {
+                it(`cannot go to PUT /${value}/1 so will get back a status of 500 and an error message`, async () => {
+                    const response = await mockRequest.post(`/signin`).auth(users.user.username, users.user.password);
+                    const token = response.body.token
+                    const createdResources = await mockRequest.post(`/${value}`).send(mockData[value]).set('Authorization', `Bearer ${token}`)
+                    const readResource = await mockRequest.put(`/${value}/1`).set('Authorization', `Bearer ${token}`).send({ name: "new" })
+                    expect(readResource.status).toBe(500)
+                    expect(readResource.body.message).toBe('Access Denied')
+                })
 
+                it(`cannot go to DELETE /${value}/1 so will get back a status of 202 and an error message`, async () => {
+                    const response = await mockRequest.post(`/signin`).auth(users.user.username, users.user.password);
+                    const token = response.body.token
+                    const createdResources = await mockRequest.post(`/${value}`).send(mockData[value]).set('Authorization', `Bearer ${token}`)
+                    const readResource = await mockRequest.delete(`/${value}/1`).set('Authorization', `Bearer ${token}`)
+                    expect(readResource.status).toBe(500)
+                    expect(readResource.body.message).toBe('Access Denied')
                 })
             })
         })

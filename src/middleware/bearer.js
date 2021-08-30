@@ -13,11 +13,10 @@ module.exports = async (req, res, next) => {
     next();
 
   } catch (e) {
-    console.log('bearerAuth', e)
     _authError();
   }
 
   function _authError() {
-    next('Invalid Login');
+    res.status(403).send('Invalid Token');
   }
 }

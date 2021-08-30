@@ -8,6 +8,7 @@ data
 *.key
 *.env
 package-lock.json
+memory
 
 ### Vim ###
 # swap
