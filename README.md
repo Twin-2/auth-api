@@ -17,11 +17,22 @@ Food: request body needs a name (string), calories(number), and type('fruit', 'v
 - PUT /food/:id
 - DELETE /food/:id
 
-Clothes: request body needs a name(string), color(string), sive(string).
+Clothes: request body needs a name(string), color(string), size(string).
 - POST /clothes
 - GET /clothes
 - GET /clothes/:id
 - PUT /clothes/:id
 - DELETE /clothes/:id
+
+
+## ACL
+Users: GET routes
+
+Writer: GET and POST routes
+
+Editors: GET, POST, PUT routes
+
+Admin: All routes
+
 
 
